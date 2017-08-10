@@ -1,3 +1,3 @@
 # *survivALL* v0.9.0
 
- - Submitted to CRAN
+ - Submitted to CRAN (almost)
