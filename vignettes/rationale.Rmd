@@ -1,0 +1,195 @@
+---
+title: "survivALL Rationale"
+author: "Dominic Pearce"
+date: "`r Sys.Date()`"
+header-includes:
+    - \usepackage{setspace}\doublespacing
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{survivALL Rationale}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message = FALSE, fig.align = 'center', results = 'asis', fig.show = 'hold', fig.width = 5, fig.height = 3.5)
+```
+
+## Libraries
+
+```{r}
+library(survivALL)
+library(Biobase)
+library(ggplot2)
+library(magrittr)
+library(viridis)
+library(survival)
+library(survcomp)
+```
+
+&nbsp;
+
+# Rationale
+
+Survival analysis typically separates a patient cohort by some measure and compares the relative survival between groups. In practice, for a continuous measure, the decision of *where* to draw this division relies on previous knowledge or, more problematically, it may simply be a researchers best guess - for example separating around the median. Below are outlined 3 alternative survival analysis approaches --- **median**, **hypothesis-driven** and our own **data-driven** approach as part of the `survivALL` package.
+
+&nbsp;
+
+## Median dichotomisation
+
+We begin with an expressionSet `nki_subset`, which details both gene expression as well as survival information (i.e. event and time-to-event data). `nki_subset` includes 319 invasive breast cancer samples of no specific subtype and with complete survival and gene expression information. Here the event we will be measuring is distant metastasis free survival or *dmfs*.  
+
+&nbsp;
+
+It is important to ensure that there are no `NA` values in our survival information. In our example data this has already been accounted for.  
+
+&nbsp;
+
+```{r}
+data(nki_subset)
+```
+```{r, eval = FALSE}
+pData(nki_subset)[1:3, ]
+```
+```{r, echo = FALSE}
+library(pander)
+library(magrittr)
+pData(nki_subset)[1:3, ] %>% pandoc.table(caption = "Survival Information")
+```
+
+&nbsp;
+
+We have our complete survival data with, amongst other variables, the three critical components of our analysis, namely *sample names*, *events (e.dmfs)* and *times-to-event (t.dmfs)*.  
+
+&nbsp;
+
+To determine a variables prognostic capacity we can apply the Kaplan-Meier estimator and plot. Here we will split our cohort using the expression of *ERBB2* a gene whose increased expression is known to be associated with poor prognosis in a mixed population of invasive breast cancers.  
+
+&nbsp;
+
+We will stratify the cohort into high and low *ERBB2* expression using median *ERBB2* expression... 
+
+&nbsp;
+
+```{r}
+erbb2_xpr <- exprs(nki_subset)["NM_004448",] #ERBB2 expression vector
+erbb2_med <- ifelse(erbb2_xpr >= median(erbb2_xpr), "high", "low") #convert to binary classifier
+```
+
+&nbsp;
+
+...and produce our Kaplan-Meier plot and statistics
+
+&nbsp;
+
+```{r}
+srv_obj <- survival::Surv(nki_subset$t.dmfs, nki_subset$e.dmfs)
+
+broom::tidy(survival::coxph(srv_obj ~ erbb2_med)) %>% pandoc.table()
+
+median_fit <- survival::survfit(srv_obj ~ erbb2_med)
+GGally::ggsurv(median_fit) + ggtitle("ERBB2 median")
+```
+
+&nbsp;
+
+Surprisingly and despite ERBB2 known to be highly prognosistic in invasive breast cancer, there is no association between ERBB2 expression and prognosis.
+
+&nbsp;
+
+## Hypothesis-driven dichotomisation
+
+However, knowing that ERBB2 overexpression is evident in the population for ~20% of invasive breast cancer cases, we can modify our cohort stratification to relfect this.
+
+&nbsp;
+
+```{r}
+erbb2_hypothesis <- ifelse(erbb2_xpr >= quantile(erbb2_xpr, probs = 0.8), "high", "low") 
+
+hypothesis_fit <- survival::survfit(srv_obj ~ erbb2_hypothesis)
+GGally::ggsurv(hypothesis_fit) + ggtitle("ERBB2 hypothesis-driven")
+
+broom::tidy(survival::coxph(srv_obj ~ erbb2_hypothesis)) %>% pandoc.table()
+```
+
+&nbsp;
+
+And we now demonstrate a significant survival difference based on ERBB2 expression. The difference in approaches can be compared as a forest plot of calculated hazard ratios
+
+&nbsp;
+
+```{r}
+forest_dfr <- rbind(
+                    data.frame(survcomp::hazard.ratio(erbb2_med, nki_subset$t.dmfs, nki_subset$e.dmfs)[1:6]),
+                    data.frame(survcomp::hazard.ratio(erbb2_hypothesis, nki_subset$t.dmfs, nki_subset$e.dmfs)[1:6])
+                    )
+forest_dfr$stratification <- c("median", "hypothesis\ndriven")
+
+ggplot(forest_dfr, aes(x = stratification)) + 
+    geom_hline(yintercept = 1, linetype = 3) + 
+    geom_linerange(aes(ymin = lower, ymax = upper)) + 
+    geom_point(aes(y = hazard.ratio, colour = p.value)) + 
+    scale_color_viridis(direction = -1, breaks = c(0.05, 0.5, 1), limits = c(0, 1)) +
+    coord_flip()
+```
+
+&nbsp;
+
+## Data-driven dichotomisation
+
+It may still be, however, that our cohort's composition in terms of ERBB2 expression does not exactly mirror population levels - i.e. that the *best* point of separation is not found with an 80-20 split. This will be even more problematic for a novel biomarker for which population levels may be unknown. 
+
+&nbsp;
+
+`survivALL` offers a solution to this difficulty. Instead of selecting a point to stratify our cohort, we instead calculate the signifcance and hazard ratio for all possible points, selecting the best after the fact.
+
+&nbsp;
+
+We can visually inspect the best point of separation by using the `plotALL()` function. Here we are effectively plotting a forest plot as above but for all 218 possible separations, rather than just two.
+
+&nbsp;
+
+```{r}
+plotALL(measure = erbb2_xpr,
+        srv = pData(nki_subset), 
+        time = "t.dmfs", 
+        event = "e.dmfs", 
+        title = "ERBB2 Expression") 
+```
+
+&nbsp;
+
+We can now see that the best point at which we could separate our cohort based on ERBB2 expression is closer to a 90-10 split, rather than 80-20, indicating a sampling bias towards HER2 negative patients in the NKI cohort.  
+
+&nbsp;
+
+We can further investigate the most significant separation using `survivALL()`, which follows the same procedure as `plotALL()` but returns a dataframe of calculations rather than plotting.
+
+&nbsp;
+
+Using this we can select the point of most significant separation... 
+
+&nbsp;
+
+```{r}
+dfr <- survivALL(measure = erbb2_xpr,
+               srv = pData(nki_subset), 
+               time = "t.dmfs", 
+               event = "e.dmfs", 
+               measure_name = "ERBB2") 
+
+dfr[which.min(dfr$p),] %>% pandoc.table()
+```
+
+&nbsp;
+
+...and re-draw our Kaplan-Meier
+
+&nbsp;
+
+```{r}
+erbb2_data <- ifelse(erbb2_xpr >= dfr[which.min(dfr$p),]$measure, "high", "low") #convert to binary classifier
+data_fit <- survival::survfit(srv_obj ~ erbb2_data)
+GGally::ggsurv(data_fit) + ggtitle("ERBB2 data-driven")
+```
+

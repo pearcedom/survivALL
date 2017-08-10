@@ -1,0 +1,32 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# Installation
+*survivALL* can be installed from R as follows
+
+&nbsp;
+
+```{r, eval = FALSE}
+install.packages("survivALL")
+```
+
+&nbsp;
+
+# Rationale
+
+Survival analysis typically separates a patient cohort by some measure and compares the relative survival between groups. In practice, for a continuous measure, the decision of *where* to draw this division relies on previous knowledge or, more problematically, it may simply be a researchers best guess - for example separating around the median. Amongst other examples the associated vignettes outlined 3 alternative survival analysis approaches --- **median**, **hypothesis-driven** and our own **data-driven** approach as part of the `survivALL` package.
+
+

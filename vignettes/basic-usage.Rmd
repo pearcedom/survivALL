@@ -1,0 +1,157 @@
+--
+title: "Basic Usage"
+author: "Dominic Pearce"
+date: "`r Sys.Date()`"
+header-includes:
+    - \usepackage{setspace}\doublespacing
+output: github_document 
+vignette: >
+  %\VignetteIndexEntry{Basic Usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message = FALSE, fig.align = 'center', results = 'asis', fig.show = 'hold', fig.width = 7, fig.height = 5)
+```
+&nbsp;
+
+#### Quick example using NKI breast cancer data
+
+*note: this data is pre-subsetted to only include patients with complete distant metastasis information (e.dmfs & t.dmfs)*
+
+&nbsp;
+
+```{r}
+library(survivALL)
+library(Biobase)
+library(ggplot2)
+
+data(nki_subset)
+```
+&nbsp;
+
+## Example : Plotting
+
+We use a continuous measure, here a vector of expression, to re-order our survival data and then compute hazard ratios and pvalues for all points of separation
+
+```{r}
+xpr_vec <- exprs(nki_subset)["NM_001758", ] #expression vector for CCND1 (a marker of proliferation)
+
+plotALL(
+        measure = xpr_vec, #expression data
+        srv = pData(nki_subset), #survival information
+        time = "t.dmfs", #time-to-outcome
+        event = "e.dmfs", #outcome type
+        bs_dfr = c(), #thresholding data would go here
+        measure_name = "CCND1", #our gene's name
+        plot_range = "auto", #we can specify the plots y-axis range here. This makes comparing plots easier
+        scale_upper = "auto", #similarly we can specify an upper limit to our pvalue colour scale
+        title = "CCND1 prognostic capacity in a mixed\npopulation of invasive breast cancer samples", #plot title
+        legend = "bottom", #legend position, one of 'top', 'right', 'bottom', 'left' or 'none'
+        axis_text = TRUE #axis text can be removed to more easily compare multiple plots side-by-side
+        )
+```
+
+&nbsp;
+
+Note that we can add additional elements using standard `ggplot2` syntax. Here we add a horizontal indicator of the most significant point of separation
+
+```{r}
+plotALL(measure = xpr_vec, 
+        srv = pData(nki_subset), 
+        time = "t.dmfs", 
+        event = "e.dmfs", 
+        bs_dfr = c(),
+        measure_name = "CCND1", 
+        title = "CCND1 prognostic capacity in a mixed\npopulation of invasive breast cancer samples") + 
+    geom_vline(xintercept = 290, linetype = 5)
+```
+
+### Plotting multiple genes simultaneously
+
+We first organise our measure data, our expression vectors for three genes of interest **CCND1**, **FOS** and **ERBB2** before applying each in a loop, specifying a common and sensible y-axis range. (To choose the limits we produce the plots first, select a rational range by eye and then recompute with the newly specified limits). We then combine the figures using the `cowplot::plot_grid()` function.
+
+
+```{r, fig.width = 8}
+geneset <- data.frame(refseq_id = c("NM_001758", "NM_005252", "NM_004448"), hgnc_id = c("CCND1", "FOS", "ERBB2"), stringsAsFactors = FALSE)
+
+xpr_lst <- lapply(geneset$refseq_id, function(id){
+                exprs(nki_subset)[id,]
+        })
+names(xpr_lst) <- geneset$hgnc_id
+
+plot_lst <- lapply(geneset$hgnc_id, function(id){
+                       plotALL(
+                               measure = xpr_lst[[id]], #expression data
+                               srv = pData(nki_subset), #survival information
+                               time = "t.dmfs", #time-to-outcome
+                               event = "e.dmfs", #outcome type
+                               bs_dfr = c(), #thresholding data 
+                               measure_name = id, #our gene's name
+                               plot_range = c(-2.5, 2.5), #we can specify the plots y-axis range here. This makes comparing plots easier
+                               scale_upper = "auto", #similarly we can specify an upper limit to our pvalue colour scale
+                               title = id, #plot title
+                               legend = "bottom", #legend position, one of 'top', 'right', 'bottom', 'left' or 'none'
+                               axis_text = TRUE #axis text can be removed to more easily compare multiple plots side-by-side
+                               )
+        })
+```
+```{r, eval = FALSE}
+cowplot::plot_grid(plotlist = plot_lst, nrow = 1)
+```
+
+```{r, echo = FALSE}
+p <- cowplot::plot_grid(plotlist = plot_lst, nrow = 1)
+print(p)
+```
+
+## Example : Returning a dataframe
+
+Alternatively, we can return only the computed statistics as a dataframe for further calculations, comparisons and manipulations
+
+```{r}
+survivall_out <- survivALL(
+                           measure = xpr_vec, #expression data
+                           srv = pData(nki_subset), #survival information
+                           time = "t.dmfs", #time-to-outcome
+                           event = "e.dmfs", #outcome type
+                           bs_dfr = c(), #thresholding data
+                           measure_name = "CCND1", #our gene's name
+                           n_sd = 1.96 #number of standard deviations that define the threshold width - 1.96 represents 95% of random associations fall within the thresholds
+                           )
+```
+```{r, eval = FALSE}
+head(survivall_out)
+```
+```{r, echo = FALSE}
+library(pander)
+library(magrittr)
+head(survivall_out) %>% pandoc.table()
+```
+
+## Calculating multiple genes
+
+We can return the results for multiple genes as a single dataframe simply by row-binding the results. Organised in this way we can plot multiple hazard ratio distributions as a single figure
+
+```{r}
+survivall_lst <- lapply(geneset$hgnc_id, function(id){
+                            survivALL(
+                                      measure = xpr_lst[[id]], #expression data
+                                      srv = pData(nki_subset), #survival information
+                                      time = "t.dmfs", #time-to-outcome
+                                      event = "e.dmfs", #outcome type
+                                      bs_dfr = c(), #thresholding data
+                                      measure_name = id, #our gene's name
+                                      n_sd = 1.96 #number of standard deviations that define the threshold width - 1.96 represents 95% of random associations fall within the thresholds
+                                      )
+                           })
+
+survivall_dfr <- do.call(rbind, survivall_lst)
+
+ggplot(survivall_dfr, aes(x = index, y = HR, colour = name)) + 
+    geom_hline(yintercept = 0, linetype = 3) + 
+    geom_point() + 
+    ylim(-2.5, 2.5) + 
+    ggthemes::theme_pander()
+```
