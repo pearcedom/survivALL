@@ -1,4 +1,11 @@
 ## Resubmission
+
+11/08/17
+* added references to DESCRIPTION
+* enclosed package name (survivALL) in '' in DESCRIPTION
+* formatted DESCRIPTION to 80 characters wide
+
+10/08/17
 * corrected title font
 * tidied up vignettes
 * sped up examples
