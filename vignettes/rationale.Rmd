@@ -19,25 +19,27 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 
 ```{r}
 library(survivALL)
-library(Biobase)
-library(ggplot2)
-library(magrittr)
-library(viridis)
 library(survival)
 library(survcomp)
+library(Biobase)
+library(magrittr)
+library(ggplot2)
+library(GGally)
+library(ggthemes)
+library(cowplot); theme_set(theme_grey())
 ```
 
 &nbsp;
 
 # Rationale
 
-Survival analysis typically separates a patient cohort by some measure and compares the relative survival between groups. In practice, for a continuous measure, the decision of *where* to draw this division relies on previous knowledge or, more problematically, it may simply be a researchers best guess - for example separating around the median. Below are outlined 3 alternative survival analysis approaches --- **median**, **hypothesis-driven** and our own **data-driven** approach as part of the `survivALL` package.
+Survival analysis typically stratifies a patient cohort by some measure and compares the relative survival between groups. In practice, for a continuous measure, the decision of *where* to draw this division relies on previous knowledge or, more problematically, it may simply be a researchers best guess - for example separating around the median. Below are outlined 3 alternative survival analysis approaches --- **median**, **hypothesis-driven** and our own **data-driven** approach as part of the `survivALL` package.
 
 &nbsp;
 
 ## Median dichotomisation
 
-We begin with an expressionSet `nki_subset`, which details both gene expression as well as survival information (i.e. event and time-to-event data). `nki_subset` includes 319 invasive breast cancer samples of no specific subtype and with complete survival and gene expression information. Here the event we will be measuring is distant metastasis free survival or *dmfs*.  
+We begin with an expressionSet `nki_subset`, which details both gene expression as well as complete survival information (i.e. event and time-to-event data with no missing data) for 319 invasive breast cancer patients of no specific subtype. Here the event we will be measuring is distant metastasis free survival or *dmfs*.  
 
 &nbsp;
 
@@ -59,7 +61,7 @@ pData(nki_subset)[1:3, ] %>% pandoc.table(caption = "Survival Information")
 
 &nbsp;
 
-We have our complete survival data with, amongst other variables, the three critical components of our analysis, namely *sample names*, *events (e.dmfs)* and *times-to-event (t.dmfs)*.  
+We can see that our complete survival data includes the three critical components of our analysis, namely *sample names*, *events (e.dmfs)* and *times-to-event (t.dmfs)*.  
 
 &nbsp;
 
@@ -84,11 +86,24 @@ erbb2_med <- ifelse(erbb2_xpr >= median(erbb2_xpr), "high", "low") #convert to b
 
 ```{r}
 srv_obj <- survival::Surv(nki_subset$t.dmfs, nki_subset$e.dmfs)
-
-broom::tidy(survival::coxph(srv_obj ~ erbb2_med)) %>% pandoc.table()
-
 median_fit <- survival::survfit(srv_obj ~ erbb2_med)
-GGally::ggsurv(median_fit) + ggtitle("ERBB2 median")
+
+p_med <- GGally::ggsurv(median_fit, surv.col = c("#525252", "#bdbdbd")) +
+    ylim(0.4, 1) +
+    labs(title = "Figure S1", subtitle = "Median approach", x = "Years", fill = "Class") +
+    theme_pander() + 
+    theme(axis.line = element_line(size = 0.1), 
+          legend.position = 'bottom')
+l_km <- get_legend(p_med)
+p_med <- p_med + theme(legend.position = 'none')
+p_med <- ggdraw(add_sub(p_med, "p = 0.9", vpadding=grid::unit(0, "lines"), y = 17, x = 0.55, hjust = 0, size = 10))
+p_med
+```
+
+&nbsp;
+
+```{r}
+broom::tidy(survival::coxph(srv_obj ~ erbb2_med)) %>% pandoc.table()
 ```
 
 &nbsp;
@@ -99,53 +114,45 @@ Surprisingly and despite ERBB2 known to be highly prognosistic in invasive breas
 
 ## Hypothesis-driven dichotomisation
 
-However, knowing that ERBB2 overexpression is evident in the population for ~20% of invasive breast cancer cases, we can modify our cohort stratification to relfect this.
+However, knowing that ERBB2 is overexpressed in ~25% of invasive breast cancer cases, we can modify our cohort stratification to relfect this.
 
 &nbsp;
 
 ```{r}
-erbb2_hypothesis <- ifelse(erbb2_xpr >= quantile(erbb2_xpr, probs = 0.8), "high", "low") 
-
+erbb2_hypothesis <- ifelse(erbb2_xpr >= quantile(erbb2_xpr, probs = 0.75), "high", "low") 
 hypothesis_fit <- survival::survfit(srv_obj ~ erbb2_hypothesis)
-GGally::ggsurv(hypothesis_fit) + ggtitle("ERBB2 hypothesis-driven")
 
+p_hyp <- GGally::ggsurv(hypothesis_fit, surv.col = c("#525252", "#bdbdbd")) +
+    ylim(0.4, 1) +
+    labs(title = "Figure S2", subtitle = "Hypothesis-driven approach", x = "Years", fill = "Class") +
+    theme_pander() + 
+    theme(axis.line = element_line(size = 0.1), 
+          legend.position = 'none')
+p_hyp <- ggdraw(add_sub(p_hyp, "p = 0.043", vpadding=grid::unit(0, "lines"), y = 17, x = 0.55, hjust = 0, size = 10))
+p_hyp
+```
+
+&nbsp;
+
+```{r}
 broom::tidy(survival::coxph(srv_obj ~ erbb2_hypothesis)) %>% pandoc.table()
 ```
 
 &nbsp;
 
-And we now demonstrate a significant survival difference based on ERBB2 expression. The difference in approaches can be compared as a forest plot of calculated hazard ratios
+And consequently demonstrate a significant association between prognosis and ERBB2 expression. 
 
 &nbsp;
 
-```{r}
-forest_dfr <- rbind(
-                    data.frame(survcomp::hazard.ratio(erbb2_med, nki_subset$t.dmfs, nki_subset$e.dmfs)[1:6]),
-                    data.frame(survcomp::hazard.ratio(erbb2_hypothesis, nki_subset$t.dmfs, nki_subset$e.dmfs)[1:6])
-                    )
-forest_dfr$stratification <- c("median", "hypothesis\ndriven")
+## Data-driven dischotomisation
 
-ggplot(forest_dfr, aes(x = stratification)) + 
-    geom_hline(yintercept = 1, linetype = 3) + 
-    geom_linerange(aes(ymin = lower, ymax = upper)) + 
-    geom_point(aes(y = hazard.ratio, colour = p.value)) + 
-    scale_color_viridis(direction = -1, breaks = c(0.05, 0.5, 1), limits = c(0, 1)) +
-    coord_flip()
-```
+By comparing multiple patient stratifications we have successful revealed ERBB2's relationship with prognosis based on a reasoned estimate of where we expect optimal stratification to occur. It may still be, however, that our cohort's composition in terms of ERBB2 expression does not exactly mirror population levels - i.e. that the *best* point-of-separation is not found with a 75-25% split. This will become even more problematic for a novel biomarker for which population levels may be unknown. A solution to this unknown quality is, instead of estimating where we anticipate our point-of-separation to occur, we calculate survival statistics for all separations possible. 
+
+For our 319 patients and having calculated our median and hypothesis divisions, there remain an additional 316 points at which we could otherwise stratify our cohort, any of which may demonstrate a more significant association with prognosis. By additionally calculating survival statistics for each of these possible point-of-separation we guarantee that we reveal the true optimal stratification. 
 
 &nbsp;
 
-## Data-driven dichotomisation
-
-It may still be, however, that our cohort's composition in terms of ERBB2 expression does not exactly mirror population levels - i.e. that the *best* point of separation is not found with an 80-20 split. This will be even more problematic for a novel biomarker for which population levels may be unknown. 
-
-&nbsp;
-
-`survivALL` offers a solution to this difficulty. Instead of selecting a point to stratify our cohort, we instead calculate the signifcance and hazard ratio for all possible points, selecting the best after the fact.
-
-&nbsp;
-
-We can visually inspect the best point of separation by using the `plotALL()` function. Here we are effectively plotting a forest plot as above but for all 218 possible separations, rather than just two.
+We can visually inspect the best point of separation by using the `plotALL()` function.
 
 &nbsp;
 
@@ -153,13 +160,14 @@ We can visually inspect the best point of separation by using the `plotALL()` fu
 plotALL(measure = erbb2_xpr,
         srv = pData(nki_subset), 
         time = "t.dmfs", 
-        event = "e.dmfs", 
-        title = "ERBB2 Expression") 
+        event = "e.dmfs") +
+    labs(title = "Figure S3", subtitle = "survivALL plot output") + 
+    theme(plot.title = element_text(hjust = 0))
 ```
 
 &nbsp;
 
-We can now see that the best point at which we could separate our cohort based on ERBB2 expression is closer to a 90-10 split, rather than 80-20, indicating a sampling bias towards HER2 negative patients in the NKI cohort.  
+We can now see that the best point at which we could separate our cohort based on ERBB2 expression is closer to a 85-15% split, rather than 75-25%, indicating a sampling bias towards HER2 negative patients in the NKI cohort.  
 
 &nbsp;
 
@@ -172,13 +180,13 @@ Using this we can select the point of most significant separation...
 &nbsp;
 
 ```{r}
-dfr <- survivALL(measure = erbb2_xpr,
+srvall <- survivALL(measure = erbb2_xpr,
                srv = pData(nki_subset), 
                time = "t.dmfs", 
                event = "e.dmfs", 
                measure_name = "ERBB2") 
 
-dfr[which.min(dfr$p),] %>% pandoc.table()
+srvall[which.min(srvall$p),] %>% pandoc.table()
 ```
 
 &nbsp;
@@ -188,8 +196,32 @@ dfr[which.min(dfr$p),] %>% pandoc.table()
 &nbsp;
 
 ```{r}
-erbb2_data <- ifelse(erbb2_xpr >= dfr[which.min(dfr$p),]$measure, "high", "low") #convert to binary classifier
+erbb2_data <- ifelse(srvall$clsf == 0, "low", "high") 
+srv_obj <- survival::Surv(as.numeric(srvall$event_time), srvall$event)
 data_fit <- survival::survfit(srv_obj ~ erbb2_data)
-GGally::ggsurv(data_fit) + ggtitle("ERBB2 data-driven")
+
+p_data <- GGally::ggsurv(data_fit, surv.col = c("#525252", "#bdbdbd")) +
+    ylim(0.4, 1) +
+    labs(title = "Figure S4", subtitle = "Data-drive approach", x = "Years", fill = "Class") +
+    theme_pander() + 
+    theme(axis.line = element_line(size = 0.1), 
+          legend.position = 'none')
+p_data <- ggdraw(add_sub(p_data, "p = 0.001", vpadding=grid::unit(0, "lines"), y = 17, x = 0.55, hjust = 0, size = 10))
+p_data
 ```
 
+&nbsp;
+
+```{r}
+broom::tidy(survival::coxph(srv_obj ~ erbb2_data)) %>% pandoc.table()
+```
+
+&nbsp;
+
+&nbsp;
+
+# Session Info
+
+```{r}
+sessioninfo::session_info()
+```

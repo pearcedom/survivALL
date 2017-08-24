@@ -1,3 +1,10 @@
+## Update
+
+24/08/17
+* updated plotALL() function to allow multivariate analysis
+* updated vignettes
+
+
 ## Resubmission
 
 11/08/17

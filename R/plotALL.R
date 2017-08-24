@@ -35,6 +35,7 @@ plotALL <- function(measure,
                     event = "Event", 
                     bs_dfr = c(),
                     measure_name = "measure",
+                    multiv = NULL,
                     plot_range = "auto", 
                     scale_upper = "auto", 
                     title = "", 
@@ -48,7 +49,8 @@ plotALL <- function(measure,
                      measure_name = measure_name, 
                      time = time, 
                      event = event, 
-                     bs_dfr = bs_dfr)
+                     bs_dfr = bs_dfr, 
+                     multiv = multiv)
 
     # The y-axis range and colour scales can be manually specified to facilitate
     # comparisons between plots
