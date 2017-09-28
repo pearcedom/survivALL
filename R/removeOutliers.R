@@ -9,7 +9,7 @@
 #' y <- removeOutliers(x)
 #' sum(is.na(y))
 #' @export
-removeOutliers <- function(x, tolerant = TRUE){
+removeOutliers <- function(x, tolerant = FALSE){
     outlierBoundries <- function(x){
         iqr <- stats::IQR(x, na.rm = TRUE)
         qlow <- stats::quantile(x, na.rm = TRUE)[["25%"]]
