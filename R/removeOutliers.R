@@ -14,7 +14,7 @@ removeOutliers <- function(x, tolerant = TRUE){
         iqr <- stats::IQR(x, na.rm = TRUE)
         qlow <- stats::quantile(x, na.rm = TRUE)[["25%"]]
         qhigh <- stats::quantile(x, na.rm = TRUE)[["75%"]]
-        coef <- ifelse(tolerant, 4, 1.5)
+        coef <- ifelse(tolerant, 2.5, 1.5)
         lower <- qlow - coef * iqr
         upper <- qhigh + coef * iqr
         c(lower, upper)
