@@ -34,7 +34,7 @@ allHR <- function(measure, srv, time = "Time", event = "Event", log2HR = TRUE) {
     hr_vec_base <- suppressWarnings(sapply(separations, function(x) {
         survcomp::hazard.ratio(x, srv_time, srv_event)$hazard.ratio
     }))
-    hr_vec <- her_vec_base#removeOutliers(hr_vec_base)
+    hr_vec <- hr_vec_base#removeOutliers(hr_vec_base)
     #a terminal NA makes the result play well with other variables - e.g. the 
     #number of HRs is n-1 samples, so to align HRs against samples the 
     #additional NA makes this possible
