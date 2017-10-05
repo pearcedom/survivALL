@@ -48,10 +48,10 @@ Imports:
     data.table,
     pander,
     png,
-    testthat
-Suggests:
     GGally,
     ggforce,
+    testthat
+Suggests:
     knitr,
     rmarkdown
 RoxygenNote: 6.0.1

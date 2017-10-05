@@ -1,5 +1,10 @@
 ## Update
 
+04/10/17
+* further vignette improvements
+
+## Update
+
 24/08/17
 * updated plotALL() function to allow multivariate analysis
 * updated vignettes
