@@ -51,6 +51,7 @@ Imports:
     testthat
 Suggests:
     GGally,
+    ggforce,
     knitr,
     rmarkdown
 RoxygenNote: 6.0.1

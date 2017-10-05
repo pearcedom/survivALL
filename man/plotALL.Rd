@@ -6,8 +6,8 @@
 area-between-curve data and plot}
 \usage{
 plotALL(measure, srv, time = "Time", event = "Event", bs_dfr = c(),
-  measure_name = "measure", plot_range = "auto", scale_upper = "auto",
-  title = "", point_size = 1.5, legend = "bottom",
+  measure_name = "measure", multiv = NULL, plot_range = "auto",
+  scale_upper = "auto", title = "", point_size = 1.5, legend = "bottom",
   timeplot_type = "tiles", axis_text = TRUE)
 }
 \arguments{
@@ -30,6 +30,9 @@ samplings}
 
 \item{measure_name}{A descriptive name for the measure used, for example
 a gene ID}
+
+\item{multiv}{Univariate analysis is performed by default, however a vector 
+of additional variables (corresponding to colnames in srv) can be included}
 
 \item{plot_range}{Allows manual specification of the y-axis; 
 as c(lower, upper)}
