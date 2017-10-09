@@ -2,6 +2,7 @@
 
 04/10/17
 * further vignette improvements
+* suspected spelling mistakes are unchanged from previous accepted version 
 
 ## Update
 
