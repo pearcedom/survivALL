@@ -18,3 +18,4 @@ bs/
 ^README-unnamed-chunk-1*$
 ^README\.md$
 ^\./README_files/$
+^README_files$
