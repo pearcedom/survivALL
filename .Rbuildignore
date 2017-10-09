@@ -17,3 +17,4 @@ bs/
 ^README-.*\.png$
 ^README-unnamed-chunk-1*$
 ^README\.md$
+^\./README_files/$
