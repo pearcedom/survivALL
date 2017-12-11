@@ -59,7 +59,8 @@ allPvals <- function(measure,
     #terminal NA makes the result play well with other variables - e.g. the 
     #number of pvalues are n-1 samples, so to align HRs against samples the 
     #additional NA makes this possible
-    pvals <- c(pvals, NA)   
-    pvals
+    pvals_adj <- p.adjust(pvals, method = "fdr")
+    pvals_out <- c(pvals_adj, NA)   
+    pvals_out
 }
 
