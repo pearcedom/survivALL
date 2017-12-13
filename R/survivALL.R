@@ -93,7 +93,10 @@ survivALL <- function(measure,
                                   areaBetweenCurves(dfr[x,])) 
     ## Combine with dfr
     dfr$threshold_residuals <- threshold_residuals
-    
+    ## And add another column with only those values that exceed the thresholds
+    dfr$threshold_sig <- threshold_residuals
+    dfr$threshold_sig[dfr$threshold_sig <= 0] <- NA
+            
     # Reduce hazard ratios and p-values to a single measure: desirability
     ## and use the most desirable cut point to create a classifier
     ## But if no hazard ratios exceed the thresholds, or no p-values are 
