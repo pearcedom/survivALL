@@ -39,7 +39,6 @@ allHR <- function(measure, srv, time = "Time", event = "Event", log2HR = TRUE) {
     #additional NA makes this possible
     hr_vec <- c(hr_vec, NA) 
     
-    
     # Return logged hazard ratios
     if (isTRUE(log2HR)) {
         hr_vec <- log2(hr_vec)

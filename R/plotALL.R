@@ -91,12 +91,11 @@ plotALL <- function(measure,
     ## Define plot dimensions, labels, horizontal zero-line and thresholds 
     p1 <- ggplot2::ggplot(dfr, ggplot2::aes_string(x = 'index', y = 'HR')) +
         ggplot2::geom_hline(yintercept = 0, linetype = 9) + #zero-line
-        ggplot2::geom_smooth(ggplot2::aes_string(y = 'sdplus', x = 'index'), 
-                             se = FALSE, 
+        ggplot2::geom_line(ggplot2::aes_string(y = 'sdplus', x = 'index'), 
                              linetype = 2, 
+                             pch = "-",
                              colour = "DARK GREY") + #upper threshold
-        ggplot2::geom_smooth(ggplot2::aes_string(y = 'sdmin', x = 'index'), 
-                             se = FALSE, 
+        ggplot2::geom_line(ggplot2::aes_string(y = 'sdmin', x = 'index'), 
                              linetype = 2, 
                              colour = "DARK GREY") + #lower threshold
         ggplot2::scale_fill_manual(values = c("BLACK"), guide = FALSE) + 
@@ -125,12 +124,14 @@ plotALL <- function(measure,
     }
 
     ## Add hazard ratio layer, coloured by significance
-    p2 <- if(all(is.na(dfr$log10_p))){ #remind myself what this check is for
-      p1 + ggplot2::geom_point(size = point_size, colour = "#737373")
-    } else {
-      p1 + ggplot2::geom_point(size = point_size, 
-               ggplot2::aes_string(colour = 'log10_p'))
-    }
+   # p2 <- if(all(is.na(dfr$log10_p))){ #remind myself what this check is for
+   #   p1 + ggplot2::geom_point(size = point_size, colour = "#737373")
+   # } else {
+   #   p1 + ggplot2::geom_point(size = point_size, 
+   #        ggplot2::aes_string(colour = 'log10_p'))
+   # }
+    p2 <- p1 + ggplot2::geom_point(size = point_size, 
+               ggplot2::aes_string(colour = 'threshold_sig'))
 
     ## Lolly-plots
     ### Time to event information can be display as barplots, with events 
