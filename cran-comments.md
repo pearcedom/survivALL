@@ -1,3 +1,10 @@
+## Update & bug-fix
+
+05/01/18
+* some computations were returning incorrect values inside suppressWarnings() - removed
+* removed log10'ing of pvalues as it served little purpose
+* HRs and bootstrap results now calculate a bootstrap p-value in addition to the results of coxph
+
 ## Update
 
 04/10/17
