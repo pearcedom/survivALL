@@ -7,7 +7,7 @@ area-between-curve data and plot}
 \usage{
 plotALL(measure, srv, time = "Time", event = "Event", bs_dfr = c(),
   measure_name = "measure", multiv = NULL, plot_range = "auto",
-  scale_upper = "auto", title = "", point_size = 1.5, legend = "bottom",
+  scale_limit = "auto", title = "", point_size = 1.5, legend = "bottom",
   timeplot_type = "tiles", axis_text = TRUE)
 }
 \arguments{
@@ -37,7 +37,7 @@ of additional variables (corresponding to colnames in srv) can be included}
 \item{plot_range}{Allows manual specification of the y-axis; 
 as c(lower, upper)}
 
-\item{scale_upper}{Allows manual specification of the pvalue colour bar upper
+\item{scale_limit}{Allows manual specification of the pvalue colour bar upper
 limit; e.g. 3}
 
 \item{title}{Plot title; as a character string}
@@ -72,4 +72,5 @@ plotALL(measure = gene_vec,
     time = "t.dmfs", 
     event = "e.dmfs", 
     title = "ERBB2 Example") 
+
 }

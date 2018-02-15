@@ -3,6 +3,7 @@
 export(allHR)
 export(allPvals)
 export(bootstrapThresholds)
+export(checkContSig)
 export(compSelect)
 export(plotALL)
 export(removeOutliers)

@@ -57,7 +57,7 @@ survivALL_dfr <- survivALL(measure = gene_vec,
    time = "t.dmfs", 
    event = "e.dmfs")
 
-ggplot(survivALL_dfr, aes_string(x = 'index', y = 'p')) + 
+ggplot(survivALL_dfr, aes_string(x = 'measure', y = 'p')) + 
     geom_hline(yintercept = 0.05, linetype = 3) + 
     geom_point()
 }

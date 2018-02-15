@@ -1,4 +1,4 @@
---
+---
 title: "Basic Usage"
 author: "Dominic Pearce"
 date: "`r Sys.Date()`"
@@ -46,7 +46,7 @@ plotALL(
         bs_dfr = c(), #thresholding data would go here
         measure_name = "CCND1", #our gene's name
         plot_range = "auto", #we can specify the plots y-axis range here. This makes comparing plots easier
-        scale_upper = "auto", #similarly we can specify an upper limit to our pvalue colour scale
+        scale_limit = "auto", #similarly we can specify a limit to our pvalue colour scale
         title = "CCND1 prognostic capacity in a mixed\npopulation of invasive breast cancer samples", #plot title
         legend = "bottom", #legend position, one of 'top', 'right', 'bottom', 'left' or 'none'
         axis_text = TRUE #axis text can be removed to more easily compare multiple plots side-by-side
@@ -90,7 +90,7 @@ plot_lst <- lapply(geneset$hgnc_id, function(id){
                                bs_dfr = c(), #thresholding data 
                                measure_name = id, #our gene's name
                                plot_range = c(-2.5, 2.5), #we can specify the plots y-axis range here. This makes comparing plots easier
-                               scale_upper = "auto", #similarly we can specify an upper limit to our pvalue colour scale
+                               scale_limit = "auto", #similarly we can specify an upper limit to our pvalue colour scale
                                title = id, #plot title
                                legend = "bottom", #legend position, one of 'top', 'right', 'bottom', 'left' or 'none'
                                axis_text = TRUE #axis text can be removed to more easily compare multiple plots side-by-side
