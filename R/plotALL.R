@@ -5,7 +5,7 @@
 #' @inheritParams survivALL
 #' @param plot_range Allows manual specification of the y-axis; 
 #' as c(lower, upper)
-#' @param scale_upper Allows manual specification of the pvalue colour bar upper
+#' @param scale_limit Allows manual specification of the pvalue colour bar upper
 #' limit; e.g. 3
 #' @param title Plot title; as a character string
 #' @param point_size Hazard ratio point size; e.g. 1.1
@@ -20,14 +20,15 @@
 #' @examples
 #' data(nki_subset)
 #' library(Biobase)
-#'
+#' 
 #' gene_vec <- exprs(nki_subset)["NM_004448", ] #ERBB2 gene id
-#'
+#' 
 #' plotALL(measure = gene_vec, 
 #'     srv = pData(nki_subset), 
 #'     time = "t.dmfs", 
 #'     event = "e.dmfs", 
 #'     title = "ERBB2 Example") 
+#' 
 #' @export
 plotALL <- function(measure, 
                     srv, 
@@ -37,7 +38,7 @@ plotALL <- function(measure,
                     measure_name = "measure",
                     multiv = NULL,
                     plot_range = "auto", 
-                    scale_upper = "auto", 
+                    scale_limit = "auto", 
                     title = "", 
                     point_size = 1.5, 
                     legend = 'bottom', 
@@ -68,24 +69,7 @@ plotALL <- function(measure,
     if (timeplot_type == "tiles"){
         plot_range[1] <- plot_range[1] - diff(plot_range)/20
     }
-    
-    ## Similarly, we fine-tune the p-value colour range
-    ### The lower end of this scale will always by 1.30103 (= log10(0.05))
-    if (scale_upper == "auto"){
-        colour_scale <- ggplot2::scale_colour_gradientn(
-                            colours = viridis::viridis(option = "D", 
-                                                       begin = 0, 
-                                                       end = 1, 
-                                                       n = 75),
-            limits = range(dfr$log10_p, na.rm = TRUE))
-    } else {
-        colour_scale <- ggplot2::scale_colour_gradientn(
-                            colours = viridis::viridis(option = "D", 
-                                                       begin = 0, 
-                                                       end = 1, 
-                                                       n = 75),
-            limits = c(1.30103, scale_upper))
-    }
+
 
     # Plot
     ## Define plot dimensions, labels, horizontal zero-line and thresholds 
@@ -109,7 +93,6 @@ plotALL <- function(measure,
               axis.title.x = ggplot2::element_blank(),
               plot.title = ggplot2::element_text(hjust = 0.5)
               ) +
-        colour_scale + #as defined above
         ggplot2::ylim(plot_range) + #as defined above
         ggplot2::ggtitle(title)
     
@@ -124,14 +107,39 @@ plotALL <- function(measure,
     }
 
     ## Add hazard ratio layer, coloured by significance
-   # p2 <- if(all(is.na(dfr$log10_p))){ #remind myself what this check is for
-   #   p1 + ggplot2::geom_point(size = point_size, colour = "#737373")
-   # } else {
-   #   p1 + ggplot2::geom_point(size = point_size, 
-   #        ggplot2::aes_string(colour = 'log10_p'))
-   # }
-    p2 <- p1 + ggplot2::geom_point(size = point_size, 
-               ggplot2::aes_string(colour = 'threshold_sig'))
+    if(all(is.na(dfr$bsp))){
+        ## For non-bootstrap pvalues we fine-tune the colour range
+        ### The upper limit of this scale will always be 0.05 (significance)
+        if (scale_limit == "auto"){
+            colour_scale <- ggplot2::scale_colour_gradientn(
+                                colours = viridis::viridis(option = "D", 
+                                                           begin = 1, 
+                                                           end = 0, 
+                                                           n = 75),
+                limits = range(dfr$log10_p, na.rm = TRUE))
+        } else {
+            colour_scale <- ggplot2::scale_colour_gradientn(
+                                colours = viridis::viridis(option = "D", 
+                                                           begin = 1, 
+                                                           end = 0, 
+                                                           n = 75),
+                limits = c(scale_limit, -1.301029))
+        }
+        p2 <- p1 + 
+            ggplot2::geom_point(size = point_size, 
+                                ggplot2::aes_string(colour = 'log10_p')) +
+            colour_scale
+                    
+    } else {
+        p2 <- p1 + 
+            ggplot2::geom_point(size = point_size, 
+                                       ggplot2::aes_string(colour = 'dsr')) +
+            ggplot2::scale_colour_gradientn(colours = viridis::viridis(
+                                                                   option = "D", 
+                                                                   begin = 0, 
+                                                                   end = 1, 
+                                                                   n = 75)) 
+    }
 
     ## Lolly-plots
     ### Time to event information can be display as barplots, with events 

@@ -1,5 +1,6 @@
 #' Calculate HR significance using bootstrap results
-#' @param survivALL_dfr Output of survivALL()
+#' @param hratios Hazard ratio vector, output of allHR()
+#' @param bs_dfr Dataframe of bootstrapped hazard ratios
 #' @return A per-separation point vector equal to the distance beyond or within
 #' the bootstrapped thresholds
 hrSignificance <- function(hratios, bs_dfr){
@@ -14,7 +15,7 @@ hrSignificance <- function(hratios, bs_dfr){
 
         up_sums <- rowSums(bs_dfr > excd_up, na.rm = TRUE)
         down_sums <- rowSums(bs_dfr < excd_down, na.rm = TRUE)
-        bsp <- (up_sums + down_sums) / n
+        bsp <- round((up_sums + down_sums) / n, 10)
         bsp[is.na(hratios)] <- NA
     }
     bsp
