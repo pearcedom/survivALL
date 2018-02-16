@@ -27,7 +27,7 @@ Description: In routine practice, biomarker performance is calculated by
     determined and quantified. We see this as a solution to a flaw in common 
     research practice, namely the failure of a true biomarker as part of a 
     meta-analysis.
-Depends: R (>= 3.4.1)
+Depends: R (>= 3.3.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
