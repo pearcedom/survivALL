@@ -112,13 +112,10 @@ survivALL <- function(measure,
     ## and use the most desirable cut point to create a classifier
     ## But if no hazard ratios exceed the thresholds, or no p-values are 
     ## significant, desirability = NA
-    if(min(dfr$bsp, na.rm = TRUE) > 0.05 & min(dfr$p, na.rm = TRUE) > 0.05){
-        dfr$clsf <- NA
-    } else {
-        n <- nrow(dfr)
-        if(missing_bs){
-            dichot_index <- which.min(dfr$p)
-            dfr$clsf <- rep(c(0, 1), c(dichot_index, n - dichot_index)) 
+    n <- nrow(dfr)
+    if(!missing_bs){
+        if(min(dfr$bsp, na.rm = TRUE) > 0.05){
+            dfr$clsf <- NA
         } else {
             #we specify three factors - HR, pvalue and distance from flank - and 
             #combine as a single value, desirability
@@ -132,15 +129,20 @@ survivALL <- function(measure,
             dsr <- desiR::d.overall(d_hr, d_p)#, d_middle)
             dsr[dsr == 0] <- NA
             dsr[dsr == 1] <- NA #likely spurious caused by proximety to edges
-            #dfr$most_dsr <- dfr$dsr > stats::quantile(dfr$dsr, na.rm = TRUE)[["75%"]]
+            dfr$most_dsr <- dfr$dsr > stats::quantile(dfr$dsr, na.rm = TRUE)[["75%"]]
             #then, using the most desirable point we produce a dichotomous 
-            #classifier
+            classifier
             dichot_index <- which.max(dsr)
             dfr$clsf <- rep(c(0, 1), c(dichot_index, n - dichot_index))
         }
+    } else {
+        if(min(dfr$p, na.rm = TRUE) > 0.05){
+            dfr$clsf <- NA
+        } else {
+            dichot_index <- which.min(dfr$p)
+            dfr$clsf <- rep(c(0, 1), c(dichot_index, n - dichot_index)) 
+        }
     }
-
     return(dfr)
-
 }
 
