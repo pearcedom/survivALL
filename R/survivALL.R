@@ -131,7 +131,7 @@ survivALL <- function(measure,
             dsr[dsr == 1] <- NA #likely spurious caused by proximety to edges
             dfr$most_dsr <- dfr$dsr > stats::quantile(dfr$dsr, na.rm = TRUE)[["75%"]]
             #then, using the most desirable point we produce a dichotomous 
-            classifier
+            #classifier
             dichot_index <- which.max(dsr)
             dfr$clsf <- rep(c(0, 1), c(dichot_index, n - dichot_index))
         }
