@@ -133,11 +133,11 @@ plotALL <- function(measure,
     } else {
         p2 <- p1 + 
             ggplot2::geom_point(size = point_size, 
-                                       ggplot2::aes_string(colour = 'dsr')) +
+                                       ggplot2::aes_string(colour = 'bsp')) +
             ggplot2::scale_colour_gradientn(colours = viridis::viridis(
                                                                    option = "D", 
-                                                                   begin = 0, 
-                                                                   end = 1, 
+                                                                   begin = 1, 
+                                                                   end = 0, 
                                                                    n = 75)) 
     }
 
