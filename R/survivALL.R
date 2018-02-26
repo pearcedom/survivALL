@@ -31,7 +31,7 @@ survivALL <- function(measure,
                       measure_name = "measure",
                       multiv = NULL,
                       n_sd = 1.96) {
-    # In case calculating with no threshold data
+    # In case calculating with no bootstrapping data
     missing_bs <- is.null(bs_dfr)
     if (missing_bs) {
         bs_dfr <- data.frame(matrix(0, ncol = 3, nrow = nrow(srv)))
@@ -39,9 +39,6 @@ survivALL <- function(measure,
     } else {
         bs_dfr <- bs_dfr
     }
-
-    # Calculate thresholds from bootstrapping results
-    threshold_dfr <- bootstrapThresholds(bs_dfr, n_sd = n_sd)
 
     # Determine sample order
     measure_ord <- order(measure)
@@ -61,52 +58,35 @@ survivALL <- function(measure,
 
     # Combine sample, event, measure, hazard ratio, p-value, desirability and 
     # threshold information as a data frame for plotting
-    base_dfr <- data.frame(
-                           #samples ordered by measure
-                           samples = factor(id_ord, levels = id_ord), 
-                           #time to event ordered by measure
-                           event_time = srv[[time]][measure_ord], 
-                           #events ordered by measure
-                           event = ifelse(srv[[event]][measure_ord] == 1, 
-                                          TRUE, 
-                                          FALSE),
-                           #the measure itself, for instance a vector of gene 
-                           #expression
-                           measure = measure[measure_ord], 
-                           #calculated hazard ratios
-                           HR = hratios, 
-                           #calculated p-values
-                           p = pvals, 
-                           #corrected p-values
-                           p_adj = stats::p.adjust(pvals, method = "fdr"),
-                           #logged p-values, 
-                           log10_p = log10(pvals_sig), 
-                           #bootstrap HR p-values
-                           bsp = bsp,
-                           #corrected bsp
-                           bsp_adj = stats::p.adjust(bsp, method = "fdr"),
-                           #a ranking index
-                           index = 1:nrow(srv), 
-                           #the measure under investigation
-                           name = measure_name  
-                           )
-
-    dfr <- merge(base_dfr, threshold_dfr, by = 'index', all = TRUE)
-    #ranking index is converted to a character class by the above step, 
-    #convert back
-    dfr$index <- as.numeric(dfr$index) 
-    # Calculate area between curves
-    ## Hazard ratios are considered relative to the bootstrapped thresholds so 
-    ## we calculate by how far a hazard ratio either 
-    ## exceeds or does not exceed it's threshold value.
-    #calculate for every separation point
-    threshold_residuals <- sapply(1:nrow(dfr), function(x) 
-                                  areaBetweenCurves(dfr[x,])) 
-    ## Combine with dfr
-    dfr$threshold_residuals <- threshold_residuals
-    ## And add another column with only those values that exceed the thresholds
-    dfr$threshold_sig <- threshold_residuals
-    dfr$threshold_sig[dfr$threshold_sig <= 0] <- NA
+    dfr <- data.frame(
+                      #samples ordered by measure
+                      samples = factor(id_ord, levels = id_ord), 
+                      #time to event ordered by measure
+                      event_time = srv[[time]][measure_ord], 
+                      #events ordered by measure
+                      event = ifelse(srv[[event]][measure_ord] == 1, 
+                                     TRUE, 
+                                     FALSE),
+                      #the measure itself, for instance a vector of gene 
+                      #expression
+                      measure = measure[measure_ord], 
+                      #calculated hazard ratios
+                      HR = hratios, 
+                      #calculated p-values
+                      p = pvals, 
+                      #corrected p-values
+                      p_adj = stats::p.adjust(pvals, method = "fdr"),
+                      #logged p-values, 
+                      log10_p = log10(pvals_sig), 
+                      #bootstrap HR p-values
+                      bsp = bsp,
+                      #corrected bsp
+                      bsp_adj = stats::p.adjust(bsp, method = "fdr"),
+                      #a ranking index
+                      index = 1:nrow(srv), 
+                      #the measure under investigation
+                      name = measure_name  
+                      )
 
     # Reduce hazard ratios and p-values to a single measure: desirability
     ## and use the most desirable cut point to create a classifier
@@ -115,13 +95,14 @@ survivALL <- function(measure,
     n <- nrow(dfr)
     if(!missing_bs){
         if(min(dfr$bsp, na.rm = TRUE) > 0.05){
+            dfr$dsr <- NA
             dfr$clsf <- NA
         } else {
             #we specify three factors - HR, pvalue and distance from flank - and 
             #combine as a single value, desirability
-            d_hr <- desiR::d.high(dfr$threshold_residuals, 
+            d_hr <- desiR::d.high(dfr$HR, 
                                   cut1 = 0, 
-                                  cut2 = max(dfr$threshold_residuals, na.rm = TRUE))
+                                  cut2 = max(dfr$HR, na.rm = TRUE))
             d_p <- desiR::d.low(dfr$bsp, 
                                 cut1 = min(dfr$bsp, na.rm = TRUE), 
                                 cut2 = 0.05)
@@ -129,17 +110,19 @@ survivALL <- function(measure,
             dsr <- desiR::d.overall(d_hr, d_p)#, d_middle)
             dsr[dsr == 0] <- NA
             dsr[dsr == 1] <- NA #likely spurious caused by proximety to edges
-            dfr$most_dsr <- dfr$dsr > stats::quantile(dfr$dsr, na.rm = TRUE)[["75%"]]
             #then, using the most desirable point we produce a dichotomous 
             #classifier
+            dfr$dsr <- dsr
             dichot_index <- which.max(dsr)
             dfr$clsf <- rep(c(0, 1), c(dichot_index, n - dichot_index))
         }
     } else {
         if(min(dfr$p, na.rm = TRUE) > 0.05){
+            dfr$dsr <- NA
             dfr$clsf <- NA
         } else {
             dichot_index <- which.min(dfr$p)
+            dfr$dsr <- NA
             dfr$clsf <- rep(c(0, 1), c(dichot_index, n - dichot_index)) 
         }
     }

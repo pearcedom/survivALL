@@ -34,7 +34,7 @@ data(nki_subset)
 
 ## Example : Plotting
 
-We use a continuous measure, here a vector of expression, to re-order our survival data and then compute hazard ratios and pvalues for all points of separation
+We use a continuous measure, here a vector of gene expression, to re-order our survival data and then compute hazard ratios and pvalues for all points of separation
 
 ```{r}
 xpr_vec <- exprs(nki_subset)["NM_020974", ] #expression vector for SCUBE2 (anti-correlated with proliferation)
