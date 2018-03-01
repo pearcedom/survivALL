@@ -19,3 +19,4 @@ bs/
 ^README\.md$
 ^\./README_files/$
 ^README_files$
+smb*
