@@ -35,21 +35,19 @@ biocViews:
 Imports:
     survival,
     survcomp,
-    survsim,
-    Biobase,
     desiR,
-    readr,
-    broom,
-    magrittr,
     ggplot2,
     cowplot,
     ggthemes,
-    viridis,
-    data.table,
-    pander,
-    png,
-    testthat
+    viridis
 Suggests:
+    testthat,
+    survsim,
+    broom,
+    readr,
+    pander,
+    magrittr,
+    Biobase,
     GGally,
     knitr,
     rmarkdown
