@@ -3,7 +3,6 @@
 ^.*\.Rproj$         # Automatically added by RStudio,
 ^\.Rproj\.user$     # used for temporary files. 
 ^cran-comments\.md$ # Comments for CRAN submission
-^NEWS\.md$          # A news file written in Markdown
 \.swp              # Vim swap files
 TODO.md
 tests/testthat/test-bootstrapThresholds\.R
