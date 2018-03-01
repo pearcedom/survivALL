@@ -3,8 +3,7 @@ survivALL
 ================
 
 
-About & Installation
-------------------------
+**About & Installation**
 
 Developmental source code for the R package *survivALL*, freely available via [CRAN](https://cran.r-project.org/web/packages/survivALL/index.html).
 
