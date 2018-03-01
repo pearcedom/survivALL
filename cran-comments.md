@@ -1,10 +1,11 @@
 ## Update & bug-fix
 
-15/02/18
+01/03/18
 * some computations were returning incorrect values inside suppressWarnings() - removed
 * HRs and bootstrap results now calculate a bootstrap p-value in addition to the results of coxph
   * this has now been sped up ~100x
 * function to calculate significance using a continuous variable added
+* vignettes have been re-worked to reflect package updates
 
 ## Update
 
