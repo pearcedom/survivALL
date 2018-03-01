@@ -32,15 +32,6 @@ plotALL <- function(measure,
     #####################
     ## DATA PROCESSING ##
     #####################
-    # In case calculating with no bootstrapping data
-    missing_bs <- is.null(bs_dfr)
-    if (missing_bs) {
-        bs_dfr <- data.frame(matrix(0, ncol = 3, nrow = nrow(srv)))
-        row.names(bs_dfr) <- 1:nrow(bs_dfr)
-    } else {
-        bs_dfr <- bs_dfr
-    }
-
     # Calculate survival statistics with survivALL()
     base_dfr <- survivALL(measure = measure, 
                      srv = srv, 
@@ -49,6 +40,15 @@ plotALL <- function(measure,
                      event = event, 
                      bs_dfr = bs_dfr, 
                      multiv = multiv)
+    
+    # In case calculating with no bootstrapping data
+    missing_bs <- is.null(bs_dfr)
+    if (missing_bs) {
+        bs_dfr <- data.frame(matrix(0, ncol = 3, nrow = nrow(srv)))
+        row.names(bs_dfr) <- 1:nrow(bs_dfr)
+    } else {
+        bs_dfr <- bs_dfr
+    }
     
     # Calculate thresholds from bootstrapping results
     threshold_dfr <- bootstrapThresholds(bs_dfr)
