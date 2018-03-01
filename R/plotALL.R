@@ -110,7 +110,7 @@ plotALL <- function(measure,
                                                                        begin = 0, 
                                                                        end = 1, 
                                                                        n = 75)) +
-            labs(colour = "Desirability")
+            ggplot2::labs(colour = "Desirability")
     }
 
     ## Finally we add a visual representation of our events

@@ -1,8 +1,12 @@
 survivALL
 ================
 
+[![Build Status](https://travis-ci.org/pearcedom/survivALL.svg?branch=master)](https://travis-ci.org/pearcedom/survivALL)
+
 About & Installation
 ------------------------
+
+&nbsp;
 
 Developmental source code for the R package *survivALL*, freely available via [CRAN](https://cran.r-project.org/web/packages/survivALL/index.html).
 
