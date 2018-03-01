@@ -1,7 +1,7 @@
-survivALL
+survivALL 
+[![Build Status](https://travis-ci.org/pearcedom/survivALL.svg?branch=master)](https://travis-ci.org/pearcedom/survivALL)
 ================
 
-[![Build Status](https://travis-ci.org/pearcedom/survivALL.svg?branch=master)](https://travis-ci.org/pearcedom/survivALL)
 
 About & Installation
 ------------------------
