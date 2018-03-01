@@ -1,6 +1,6 @@
---
+---
 title: "Bootstrapping and hazard ratio thresholds"
-author: "Dominic Pearce"
+author: "Dominic Pearce, The Institute of Genetics and Molecular Medicine, The University of Edinburgh"
 date: "`r Sys.Date()`"
 header-includes:
     - \usepackage{setspace}\doublespacing
@@ -35,9 +35,9 @@ library(knitr)
 
 &nbsp;
 
-When performing a large number of statistical test, as is integral to the `survivALL` rationale, it is important to protect against false positive results using some form of multiple testing correction. For `survivALL` this is implemented as a bootstrapping exercise to determine robust thresholds of hazard ratio significance. In short we calculate, for each point-of-separation a upper and lower limit within which we expect to see hazard ratios occur by chance, and beyond which hazard ratios are unlikely (1 in 20) to have occurred by chance.
+To determine and ensure reliable prognostic association as a measure of significance, *survivALL* can perform a non-parametric bootstrapping procedure. In short we calculate, for each point-of-separation a distribution of expected hazard ratios (HRs), against which we're able to compare our observed HRs as part of our analysis.
 
-To achieve this, we randomly sample our survival data with replacement and calculate survival statistics for all points-of-separation, as we would using for a biomarker under investigation. By repeating this procedure 1,000s or 10,000s of times, we produce a distribution of *expected* hazard ratios, of which we use the mean and standard deviation to calculate our per-point-of-separation upper and lower thresholds.
+To achieve this, we randomly sample our survival data with replacement and then calculate survival statistics for all points-of-separation, exactly as we would for a biomarker under investigation. By repeating this procedure 1,000s or 10,000s of times, we produce our distribution of *expected* hazard ratios.
 
 &nbsp;    
 
@@ -62,7 +62,7 @@ kable(bs_mtx[1:20, 1:5])
 
 &nbsp;
 
-Having calculated our bootstrapped data we then simply hand the matrix to either the `survivALL()` or `plotALL()` functions to handle the subsequent thresholding calculations. It should be noted that thresholding up to 10,000x can be a long process requiring an investment of time.
+Having calculated our bootstrapped data we then simply hand the matrix to either the `survivALL()` or `plotALL()` functions (using the `bs_dfr = ` argument) to handle the subsequent significance calculations. It should be noted that bootstrapping up to 10,000x can be a long process requiring an investment of time.
 
 &nbsp;
 

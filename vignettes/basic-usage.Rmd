@@ -1,6 +1,6 @@
 ---
 title: "Basic Usage"
-author: "Dominic Pearce"
+author: "Dominic Pearce, The Institute of Genetics and Molecular Medicine, The University of Edinburgh"
 date: "`r Sys.Date()`"
 header-includes:
     - \usepackage{setspace}\doublespacing
@@ -20,8 +20,6 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 
 *note: this data is pre-subsetted to only include patients with complete distant metastasis information (e.dmfs & t.dmfs)*
 
-&nbsp;
-
 ```{r}
 library(survivALL)
 library(Biobase)
@@ -29,8 +27,6 @@ library(ggplot2)
 
 data(nki_subset)
 ```
-
-&nbsp;
 
 ## Example : Plotting
 
@@ -73,11 +69,6 @@ We first organise our measure data, our expression vectors for three genes of in
 
 
 ```{r, fig.width = 8}
-
-head(fData(nki_subset))
-
-fData(nki_subset)[which(fData(nki_subset)$HUGO.gene.symbol == "GATA3"),]
-
 geneset <- data.frame(refseq_id = c("NM_020974", "NM_002051", "NM_004448"), hgnc_id = c("SCUBE2", "GATA3", "ERBB2"), stringsAsFactors = FALSE)
 
 xpr_lst <- lapply(geneset$refseq_id, function(id){
@@ -95,15 +86,14 @@ plot_lst <- lapply(geneset$hgnc_id, function(id){
                                measure_name = id, #our gene's name
                                title = id #plot title
                                ) + 
-                           ylim(2.5, 2.5) + 
-                           theme(axis.text.y = element_blank())
+                           ylim(-2.5, 2.5)  
         })
 ```
 
 ```{r, eval = FALSE}
 cowplot::plot_grid(plotlist = plot_lst, nrow = 1)
 ```
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height = 5, fig.width = 11}
 p <- cowplot::plot_grid(plotlist = plot_lst, nrow = 1)
 print(p)
 ```
@@ -131,7 +121,7 @@ library(magrittr)
 head(survivall_out) %>% pandoc.table()
 ```
 
-## Calculating multiple genes
+## Analysing and displaying multiple genes
 
 We can return the results for multiple genes as a single dataframe simply by row-binding the results. Organised in this way we can plot multiple hazard ratio distributions as a single figure
 
