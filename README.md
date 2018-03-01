@@ -1,10 +1,10 @@
 survivALL
+================
+
 [![Build Status](https://travis-ci.org/pearcedom/survivALL.svg?branch=master)](https://travis-ci.org/pearcedom/survivALL)
 [![cran-version](http://www.r-pkg.org/badges/version/survivALL)](http://cran.rstudio.com/web/packages/survivALL)
 [![Codecov branch](https://img.shields.io/codecov/c/github/pearcedom/survivALL/master.svg)](https://codecov.io/gh/pearcedom/survivALL)
 [![Downloads](http://cranlogs.r-pkg.org/badges/survivALL)](http://www.r-pkg.org/pkg/surviALL)
-
-================
 
 
 **About & Installation**
