@@ -5,7 +5,8 @@
 \title{For all possible separation points for a cohort ordered by a continuous 
 measurement, perform a uni- or multivariate log-rank test}
 \usage{
-allPvals(measure, srv, time = "Time", event = "Event", multiv = NULL)
+allPvals(measure, srv, time = "Time", event = "Event", multiv = NULL,
+  statistic = "logtest")
 }
 \arguments{
 \item{measure}{A continuous variable used to order survival data. Samples
@@ -21,8 +22,13 @@ not contain NAs}
 \item{event}{Column name in srv containing event information coded as 0 (no
 event) and 1 (event). Must not contain NAs}
 
-\item{multiv}{Univariate analysis is performed by default, however a vector 
-of additional variables (corresponding to colnames in srv) can be included}
+\item{multiv}{Univariate analysis is performed by default, however a character
+string specifying a column contained in srv (or a vector of strings specifying
+multiple columns) detailing additional variables can be included}
+
+\item{statistic}{the statistical test to be used to compute significance.
+one of "logtest" (likelihood ratio test), "waldtest" (wald statistic) or "sctest"
+(log-rank test)}
 }
 \value{
 A vector of pvalues calculated from \code{srv} ordered by 
@@ -37,8 +43,18 @@ library(survivALL)
 data(nki_subset)
 library(Biobase)
 gene_vec <- exprs(nki_subset)["NM_004448", ] #ERBB2 gene id
+
 allPvals(measure = gene_vec, 
     srv = pData(nki_subset), 
     time = "t.dmfs", 
-    event = "e.dmfs")
+    event = "e.dmfs",
+    statistic = "logtest")
+
+
+allPvals(measure = gene_vec, 
+    srv = pData(nki_subset), 
+    time = "t.dmfs", 
+    event = "e.dmfs",
+    multiv = "grade",
+    statistic = "sctest")
 }

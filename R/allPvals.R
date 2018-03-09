@@ -18,11 +18,11 @@
 #' @return A vector of pvalues calculated from \code{srv} ordered by 
 #' \code{measure}
 #' @examples
- library(survivALL)
- data(nki_subset)
- library(Biobase)
- gene_vec <- exprs(nki_subset)["NM_004448", ] #ERBB2 gene id
-'
+#' library(survivALL)
+#' data(nki_subset)
+#' library(Biobase)
+#' gene_vec <- exprs(nki_subset)["NM_004448", ] #ERBB2 gene id
+#'
 #' allPvals(measure = gene_vec, 
 #'     srv = pData(nki_subset), 
 #'     time = "t.dmfs", 

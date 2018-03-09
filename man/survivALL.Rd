@@ -29,8 +29,9 @@ samplings}
 \item{measure_name}{A descriptive name for the measure used, for example
 a gene ID}
 
-\item{multiv}{Univariate analysis is performed by default, however a vector 
-of additional variables (corresponding to colnames in srv) can be included}
+\item{multiv}{Univariate analysis is performed by default, however a character
+string specifying a column contained in srv (or a vector of strings specifying
+multiple columns) detailing additional variables can be included}
 
 \item{n_sd}{The number of standard deviations used to define threshold width.
 95% of random hazard ratio values fall within the thresholds with a standard 
