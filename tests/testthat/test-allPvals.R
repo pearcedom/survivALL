@@ -39,3 +39,7 @@ test_that("Ps are between 0 and 1", {
 test_that("There is 1 P per sample", {
           expect_identical(length(test_p), length(measure))
 })
+
+test_that("log-rank is identical between survivALL and survdiff calculations", {
+
+})
