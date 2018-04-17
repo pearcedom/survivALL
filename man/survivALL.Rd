@@ -6,7 +6,8 @@
 area-between-curve data as a single dataframe}
 \usage{
 survivALL(measure, srv, time = "Time", event = "Event", bs_dfr = c(),
-  measure_name = "measure", multiv = NULL, n_sd = 1.96)
+  measure_name = "measure", multiv = NULL, n_sd = 1.96,
+  remove_outliers = TRUE)
 }
 \arguments{
 \item{measure}{A continuous variable used to order survival data. Samples
@@ -36,6 +37,10 @@ multiple columns) detailing additional variables can be included}
 \item{n_sd}{The number of standard deviations used to define threshold width.
 95% of random hazard ratio values fall within the thresholds with a standard 
 deviation of 1.96}
+
+\item{remove_outliers}{Large hazard ratios result from statistical 
+disproportion when considering edge cases (e.g. 1 vs 99) and can be 
+automaticall removed}
 }
 \value{
 a dataframe detailing survival, measure, hazard ratio,

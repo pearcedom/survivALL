@@ -4,6 +4,9 @@
 #' @inheritParams bootstrapThresholds
 #' @param measure_name A descriptive name for the measure used, for example
 #' a gene ID
+#' @param remove_outliers Large hazard ratios result from statistical 
+#' disproportion when considering edge cases (e.g. 1 vs 99) and can be 
+#' automaticall removed
 #' @return a dataframe detailing survival, measure, hazard ratio,
 #' pvalue, log10 pvalue, threshold and threshold residual information
 #' @examples
@@ -30,7 +33,8 @@ survivALL <- function(measure,
                       bs_dfr = c(), 
                       measure_name = "measure",
                       multiv = NULL,
-                      n_sd = 1.96) {
+                      n_sd = 1.96, 
+                      remove_outliers = TRUE) {
     # In case calculating with no bootstrapping data
     missing_bs <- is.null(bs_dfr)
     if (missing_bs) {
@@ -45,7 +49,7 @@ survivALL <- function(measure,
     id_ord <- row.names(srv)[measure_ord]
 
     # Calculate hazard ratios and p-values
-    hratios  <- allHR(measure, srv, time = time, event = event)
+    hratios  <- allHR(measure, srv, time = time, event = event, remove_outliers = remove_outliers)
     pvals <- allPvals(measure, srv, time = time, event = event, multiv = multiv)
     ## For our logged p-values, we also define non-significant points of 
     ## separation as NA - i.e. they will not plot

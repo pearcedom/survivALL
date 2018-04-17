@@ -5,7 +5,8 @@
 \title{For all possible separation points for a cohort ordered by a continuous
 measurement, calculate hazard ratio}
 \usage{
-allHR(measure, srv, time = "Time", event = "Event", log2HR = TRUE)
+allHR(measure, srv, time = "Time", event = "Event", log2HR = TRUE,
+  remove_outliers = TRUE)
 }
 \arguments{
 \item{measure}{A continuous variable used to order survival data. Samples
@@ -22,6 +23,10 @@ not contain NAs}
 event) and 1 (event). Must not contain NAs}
 
 \item{log2HR}{Hazard ratios are returned as log2 values by default}
+
+\item{remove_outliers}{Large hazard ratios result from statistical 
+disproportion when considering edge cases (e.g. 1 vs 99) and can be 
+automaticall removed}
 }
 \value{
 A vector of hazard ratios calculated from \code{srv} ordered by 

@@ -1,3 +1,8 @@
+## Update for publication
+
+17/04/18
+* removeOutliers has been made a optional process for survivALL calculations
+
 ## Update & bug-fix
 
 01/03/18

@@ -2,6 +2,9 @@
 #' measurement, calculate hazard ratio
 #' @inheritParams allPvals
 #' @param log2HR Hazard ratios are returned as log2 values by default
+#' @param remove_outliers Large hazard ratios result from statistical 
+#' disproportion when considering edge cases (e.g. 1 vs 99) and can be 
+#' automaticall removed
 #' @return A vector of hazard ratios calculated from \code{srv} ordered by 
 #' \code{measure}
 #' @examples
@@ -12,7 +15,7 @@
 #' allHR(measure = gene_vec, srv = pData(nki_subset), time = "t.dmfs", 
 #'     event = "e.dmfs", log2HR = TRUE)
 #' @export
-allHR <- function(measure, srv, time = "Time", event = "Event", log2HR = TRUE) {
+allHR <- function(measure, srv, time = "Time", event = "Event", log2HR = TRUE, remove_outliers = TRUE) {
     # House keeping 
     if (any(is.na(srv[[time]]) | 
             is.na(srv[[event]]))) stop("NAs in survival data")
@@ -46,5 +49,10 @@ allHR <- function(measure, srv, time = "Time", event = "Event", log2HR = TRUE) {
         hr_vec
     }
 
-    removeOutliers(hr_vec)
+    if(remove_outliers){
+        hr_vec <- removeOutliers(hr_vec)
+    } else {
+        hr_vec
+    }
+    hr_vec
 }
