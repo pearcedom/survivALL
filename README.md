@@ -18,8 +18,5 @@ For more information please check out the vignettes within this repository, the 
 
 **Direction**
 
-- [ ] Implement plotALL() argument allowing x-axis by rank (default) or by the continuous measurement variable
-- [ ] Supplementary km & change S1>S2, S2>S3 and S3>S1
-- [ ] Missing ref
+- [ ] Resubmit updates to CRAN
 
-"beyond a single test of signifcance we are therefore no longer considering *association* with prognosis, simply the point at which that association is most pronounced"
