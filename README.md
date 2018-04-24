@@ -18,5 +18,7 @@ For more information please check out the vignettes within this repository, the 
 
 **Direction**
 
+- [ ] Speed up HR calculations
 - [ ] Resubmit updates to CRAN
+
 
