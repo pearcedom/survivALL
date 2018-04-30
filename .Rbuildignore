@@ -18,3 +18,5 @@ bs/
 ^\./README_files/$
 ^README_files$
 smb*
+^survivALL-app-howto\.mp4$
+^survivALL-package-howto\.mp4$
