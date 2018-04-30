@@ -1,6 +1,6 @@
 Package: survivALL
 Title: Continuous Biomarker Assessment by Exhaustive Survival Analysis 
-Version: 0.9.3
+Version: 0.9.3.1000
 Authors@R: person("Dominic", "Pearce", email = "dominic.pearce@ed.ac.uk", 
     role = c("aut", "cre"))
 Description: In routine practice, biomarker performance is calculated by 
