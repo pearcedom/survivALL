@@ -18,10 +18,3 @@ For general use information please check out the [vignettes](https://github.com/
 However, the associated publication [Continuous Biomarker Assessment by Exhaustive Survival Analysis](https://www.biorxiv.org/content/early/2018/03/02/208660) and the [corresponding supplementary code](https://github.com/abc-igmm/supplementary-survivALL) may offer a more informative applied use case. 
 
 Also be sure to check out the companion shiny app [survivAPP](http://pearcedom.shinyapps.io/survivapp/).
-
-
-**Direction**
-
-- [ ] Speed up HR calculations
-
-
